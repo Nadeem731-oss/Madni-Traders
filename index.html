@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Madni Traders - Cash Memo</title>
+<meta name="theme-color" content="#173f73">
+<style>
+:root{--blue:#5145bd;--navy:#172b4d;--line:#252525;--pale:#f1f1ff;--muted:#747987}
+*{box-sizing:border-box}
+body{margin:0;background:#e9e9ee;color:#111;font-family:Arial,Helvetica,sans-serif}
+.app{max-width:760px;margin:14px auto;background:#fff;box-shadow:0 2px 12px #0002}
+.toolbar{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px;background:#173f73;color:#fff}
+.toolbar button,.toolbar select{width:auto;border:1px solid #ffffff66;background:#fff;color:#173f73;border-radius:6px;padding:8px 10px;font-weight:700}
+.paper{padding:12px 10px 22px}
+.topline{display:grid;grid-template-columns:1fr 1fr;gap:5px;font-weight:700;color:#6d7280}
+.topline div{background:#edf1f7;padding:9px 10px}
+.topline div:last-child{text-align:right}
+.topline strong{font-size:22px;color:#bd2936;margin-left:6px}
+.brand{text-align:center;padding:20px 8px 16px;border-bottom:1px solid #d8d8d8}
+.brand h1{margin:0;color:#4c1ca8;font-size:29px}
+.brand .owner{font-size:19px;color:#59606c;margin:6px 0}
+.brand .phone{font-size:18px;color:#59606c}
+.customer{padding:16px 5px 12px;border-bottom:1px solid #ddd;display:grid;gap:11px}
+.fieldrow{display:grid;grid-template-columns:105px 1fr;gap:8px;align-items:center}
+.fieldrow label{font-weight:700;color:#646a75}
+input,select{font:inherit}
+.fieldrow input{border:0;border-bottom:1px solid #ddd;padding:7px 5px;min-width:0;font-size:16px;font-weight:700;outline:none}
+.items-wrap{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;min-width:480px}
+th{background:#050505;color:#fff;padding:12px 7px;font-size:16px}
+td{border:1px solid #222;padding:9px 7px;text-align:center;font-size:15px}
+tbody tr:nth-child(even){background:#f3f3ff}
+td input{border:0;background:transparent;width:100%;min-width:0;text-align:center;padding:4px 1px;font-size:15px;outline:none}
+td input.name{text-align:left;font-weight:700}
+td.amount{font-weight:700}
+tfoot td{background:#efedff;color:#594ec4;font-weight:800;font-size:17px}
+.summary td{padding:9px 7px;font-weight:700}
+.summary .label{color:#6e7480}
+.summary input{width:72px;border:0;border-bottom:1px solid #aaa;text-align:center;background:transparent;font-weight:700;padding:4px}
+.summary .received{color:#15846c;font-size:18px}
+.summary .balance{color:#c72f36;background:#fff4f0;font-size:19px}
+.status{color:#d54a39;white-space:nowrap}
+.status input{width:auto;vertical-align:middle}
+.terms{padding:28px 8px 20px;color:#9aa0a9;font-style:italic}
+.actions{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:#f4f5f7}
+.actions button{flex:1;min-width:110px;border:0;border-radius:7px;padding:11px;background:#173f73;color:white;font-weight:700}
+.actions button.secondary{background:#e8eaf0;color:#27364d}
+.saved{padding:12px;border-top:1px solid #ddd}
+.saved h3{margin:4px 0 10px}
+.savedrow{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}
+.savedrow button{border:0;border-radius:5px;padding:6px 9px;background:#e8eaf0}
+.smallnote{font-size:12px;color:#777;line-height:1.5}
+@media(max-width:520px){.app{margin:0}.brand h1{font-size:25px}.fieldrow{grid-template-columns:86px 1fr}.topline strong{font-size:19px}.paper{padding:9px 6px 16px}}
+@media print{body{background:#fff}.app{margin:0;max-width:none;box-shadow:none}.toolbar,.actions,.saved,.remove-col{display:none!important}.paper{padding:0}.terms{padding-top:20px}input{color:#111!important}}
+</style>
+</head>
+<body>
+<div class="app">
+ <div class="toolbar">
+  <strong id="appTitle">MADNI TRADERS - CASH MEMO</strong>
+  <select id="lang" aria-label="Language"><option value="en">English</option><option value="ur">اردو</option></select>
+ </div>
+ <div class="paper" id="paper">
+  <div class="topline">
+   <div><span id="dateText">DATE</span> <strong id="dateShown"></strong></div>
+   <div><span id="billText">BILL NO.</span><strong id="billNo">1</strong></div>
+  </div>
+  <header class="brand">
+   <h1 id="shopName">Madni Traders</h1>
+   <div class="owner" id="ownerName">Muhammad Nadeem</div>
+   <div class="owner" id="addressLine">Kotli Bawa and Koreke</div>
+   <div class="phone">03101600972</div>
+  </header>
+  <section class="customer">
+   <div class="fieldrow"><label id="customerText">Customer</label><input id="customer" placeholder="Customer Name Here"></div>
+   <div class="fieldrow"><label id="phoneText">Phone</label><input id="customerPhone" placeholder="Customer Phone Number"></div>
+  </section>
+  <div class="items-wrap">
+   <table>
+    <thead><tr><th id="itemHead">ITEM</th><th id="qtyHead">QTY</th><th id="rateHead">RATE</th><th id="totalHead">TOTAL</th><th class="remove-col"></th></tr></thead>
+    <tbody id="itemRows"></tbody>
+    <tfoot><tr><td id="totalQtyText">Total Qty.</td><td id="totalQty">0</td><td id="totalText">Total:</td><td id="grandTotal">0.00</td><td class="remove-col"></td></tr></tfoot>
+   </table>
+  </div>
+  <table class="summary">
+   <tr><td class="label" id="discountText">Discount:</td><td><input id="discount" type="number" min="0" max="100" step="0.1" value="0"> %</td><td class="label">GST %:</td><td><input id="gst" type="number" min="0" max="100" step="0.1" value="0"> %</td></tr>
+   <tr><td class="label" id="receivedText">Received:</td><td colspan="2"><input id="received" type="number" min="0" step="any" value="0" class="received"></td><td class="status"><label><input id="unpaid" type="checkbox"> <span id="unpaidText">Unpaid</span></label></td></tr>
+   <tr><td class="balance" id="balanceText">Balance:</td><td colspan="3" class="balance" id="balance">0.00</td></tr>
+  </table>
+  <div class="terms"><input id="terms" style="width:100%;border:0;border-bottom:1px dotted #bbb;padding:7px 2px;font-style:italic" placeholder="Add Your Terms and Conditions Here"></div>
+ </div>
+ <div class="actions">
+  <button id="addRow">+ Add Item</button>
+  <button id="save">Save Bill</button>
+  <button id="print" class="secondary">Print / PDF</button>
+  <button id="new" class="secondary">New Bill</button>
+ </div>
+ <section class="saved">
+  <h3 id="savedTitle">Saved Bills</h3>
+  <div id="savedList" class="smallnote">No saved bills yet.</div>
+  <p class="smallnote" id="note">Bills are saved in this browser on this device. Use Print / PDF to keep a backup.</p>
+ </section>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const words={
+ en:{date:"DATE",bill:"BILL NO.",customer:"Customer",phone:"Phone",item:"ITEM",qty:"QTY",rate:"RATE",total:"TOTAL",totalQty:"Total Qty.",totalLabel:"Total:",discount:"Discount:",received:"Received:",unpaid:"Unpaid",balance:"Balance:",add:"+ Add Item",save:"Save Bill",print:"Print / PDF",new:"New Bill",saved:"Saved Bills",none:"No saved bills yet.",note:"Bills are saved in this browser on this device. Use Print / PDF to keep a backup.",name:"Customer Name Here",phoneph:"Customer Phone Number",terms:"Add Your Terms and Conditions Here",empty:"Enter item name",open:"Open",del:"Delete",savedMsg:"Bill saved.",addFirst:"Please add at least one item."},
+ ur:{date:"تاریخ",bill:"بل نمبر",customer:"گاہک",phone:"فون",item:"آئٹم",qty:"تعداد",rate:"قیمت",total:"رقم",totalQty:"کل تعداد",totalLabel:"کل رقم:",discount:"رعایت:",received:"وصول شدہ:",unpaid:"ادھار",balance:"بقایا:",add:"+ آئٹم شامل کریں",save:"بل محفوظ کریں",print:"پرنٹ / PDF",new:"نیا بل",saved:"محفوظ بل",none:"ابھی کوئی بل محفوظ نہیں۔",note:"بل اسی موبائل کے براؤزر میں محفوظ ہوتے ہیں۔ بیک اپ کے لیے PDF بنائیں۔",name:"گاہک کا نام",phoneph:"گاہک کا فون نمبر",terms:"شرائط و ضوابط یہاں لکھیں",empty:"آئٹم کا نام لکھیں",open:"کھولیں",del:"حذف",savedMsg:"بل محفوظ ہوگیا۔",addFirst:"پہلے کم از کم ایک آئٹم شامل کریں۔"}
+};
+let rows=[], counter=Number(localStorage.getItem("madniMemoCounter")||1);
+function tr(k){return words[$("lang").value][k]}
+function today(){let d=new Date();return [String(d.getDate()).padStart(2,"0"),String(d.getMonth()+1).padStart(2,"0"),d.getFullYear()].join("/")}
+function fmt(n){return Number(n||0).toLocaleString("en-PK",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function updateLang(){
+ let ur=$("lang").value==="ur";document.documentElement.lang=ur?"ur":"en";document.documentElement.dir=ur?"rtl":"ltr";
+ const map={dateText:"date",billText:"bill",customerText:"customer",phoneText:"phone",itemHead:"item",qtyHead:"qty",rateHead:"rate",totalHead:"total",totalQtyText:"totalQty",totalText:"totalLabel",discountText:"discount",receivedText:"received",unpaidText:"unpaid",balanceText:"balance",addRow:"add",save:"save",print:"print",new:"new",savedTitle:"saved",note:"note"};
+ for(let [id,k] of Object.entries(map))$(id).textContent=tr(k);
+ $("customer").placeholder=tr("name");$("customerPhone").placeholder=tr("phoneph");$("terms").placeholder=tr("terms");
+ render();
+}
+function calc(){
+ let subtotal=rows.reduce((s,r)=>s+r.q*r.rate,0),disc=Math.min(100,Math.max(0,Number($("discount").value)||0)),gst=Math.max(0,Number($("gst").value)||0);
+ let after=subtotal*(1-disc/100),total=after*(1+gst/100),received=$("unpaid").checked?0:Math.max(0,Number($("received").value)||0);
+ $("totalQty").textContent=rows.reduce((s,r)=>s+r.q,0).toLocaleString("en-PK",{maximumFractionDigits:2});
+ $("grandTotal").textContent=fmt(total);$("balance").textContent=fmt(total-received);
+ if($("unpaid").checked){$("received").value=0;$("received").disabled=true}else{$("received").disabled=false}
+ return {subtotal,total,received,balance:total-received};
+}
+function render(){
+ let body=$("itemRows");body.innerHTML="";
+ rows.forEach((r,i)=>{
+  let tr=document.createElement("tr");
+  let name=document.createElement("td"),qty=document.createElement("td"),rate=document.createElement("td"),total=document.createElement("td"),del=document.createElement("td");
+  let ni=document.createElement("input");ni.className="name";ni.placeholder=trText("empty");ni.value=r.name;ni.oninput=()=>{r.name=ni.value};name.append(ni);
+  let qi=document.createElement("input");qi.type="number";qi.min="0";qi.step="any";qi.value=r.q;qi.oninput=()=>{r.q=Math.max(0,Number(qi.value)||0);render()};qty.append(qi);
+  let ri=document.createElement("input");ri.type="number";ri.min="0";ri.step="any";ri.value=r.rate;ri.oninput=()=>{r.rate=Math.max(0,Number(ri.value)||0);render()};rate.append(ri);
+  total.className="amount";total.textContent=fmt(r.q*r.rate);
+  let b=document.createElement("button");b.textContent="×";b.title=tr("del");b.style.cssText="border:0;background:transparent;color:#c33;font-size:20px";b.onclick=()=>{rows.splice(i,1);render()};del.className="remove-col";del.append(b);
+  tr.append(name,qty,rate,total,del);body.append(tr);
+ });
+ calc();
+}
+function trText(k){return tr(k)}
+function addRow(item={name:"",q:1,rate:0}){rows.push({...item});render()}
+function snapshot(){return {no:$("billNo").textContent,date:$("dateShown").textContent,customer:$("customer").value,phone:$("customerPhone").value,rows,discount:$("discount").value,gst:$("gst").value,received:$("received").value,unpaid:$("unpaid").checked,terms:$("terms").value,...calc()}}
+function newBill(){
+ rows=[];addRow();$("billNo").textContent=counter++;localStorage.setItem("madniMemoCounter",counter);
+ $("dateShown").textContent=today();$("customer").value="";$("customerPhone").value="";$("discount").value=0;$("gst").value=0;$("received").value=0;$("unpaid").checked=false;$("terms").value="";render();
+}
+$("addRow").onclick=()=>addRow();
+$("discount").oninput=calc;$("gst").oninput=calc;$("received").oninput=calc;$("unpaid").onchange=calc;
+$("lang").onchange=updateLang;$("print").onclick=()=>window.print();$("new").onclick=newBill;
+$("save").onclick=()=>{
+ if(!rows.some(r=>r.name.trim())){alert(tr("addFirst"));return}
+ let bills=JSON.parse(localStorage.getItem("madniMemoBills")||"[]"),b=snapshot(),ix=bills.findIndex(x=>x.no===b.no);
+ if(ix>=0)bills[ix]=b;else bills.push(b);localStorage.setItem("madniMemoBills",JSON.stringify(bills));showSaved();alert(tr("savedMsg"));
+};
+function showSaved(){
+ let list=JSON.parse(localStorage.getItem("madniMemoBills")||"[]"),host=$("savedList");host.innerHTML="";
+ if(!list.length){host.textContent=tr("none");return}
+ list.slice().reverse().forEach(b=>{
+  let row=document.createElement("div");row.className="savedrow";
+  let span=document.createElement("span");span.textContent=`#${b.no} · ${b.customer||"-"} · ${fmt(b.total)}`;
+  let open=document.createElement("button");open.textContent=tr("open");open.onclick=()=>load(b);
+  row.append(span,open);host.append(row);
+ });
+}
+function load(b){
+ $("billNo").textContent=b.no;$("dateShown").textContent=b.date;$("customer").value=b.customer||"";$("customerPhone").value=b.phone||"";
+ rows=(b.rows||[]).map(x=>({...x}));$("discount").value=b.discount||0;$("gst").value=b.gst||0;$("received").value=b.received||0;$("unpaid").checked=!!b.unpaid;$("terms").value=b.terms||"";render();window.scrollTo({top:0,behavior:"smooth"});
+}
+newBill();updateLang();showSaved();
+</script>
+</body>
+</html>
